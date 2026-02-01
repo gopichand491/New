@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VitalGuard AI | Next-Gen Health Monitor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #0b0f19;
+            --card-glass: rgba(20, 27, 45, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #3b82f6;
+            --accent: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient-main: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+
+        /* Ambient Animation */
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            animation: pulse-glow 8s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+
+            100% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            min-height: 100vh;
+            align-content: center;
+        }
+
+        @media (max-width: 968px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glass Card Utility */
+        .glass-panel {
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Left/Input Column */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .brand-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+
+        .brand-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .input-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1.2rem;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3.5rem;
+            background: rgba(11, 15, 25, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            color: white;
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: rgba(11, 15, 25, 0.8);
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            background: var(--gradient-main);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 10px 20px -5px rgba(59, 130, 246, 0.4);
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(59, 130, 246, 0.5);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+        }
+
+        /* Right/Result Column */
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            opacity: 0.5;
+            filter: blur(5px);
+            pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .results-section.active {
+            opacity: 1;
+            filter: blur(0);
+            pointer-events: all;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--text-muted);
+        }
+
+        .status-card.danger {
+            border-color: var(--danger);
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, transparent 100%);
+        }
+
+        .status-card.safe {
+            border-color: var(--success);
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%);
+        }
+
+        .status-card.warning {
+            border-color: var(--warning);
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, transparent 100%);
+        }
+
+        .status-text h2 {
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-text p {
+            color: var(--text-muted);
+        }
+
+        .status-icon {
+            font-size: 2.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .metric-box {
+            background: rgba(11, 15, 25, 0.4);
+            padding: 1.25rem;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            height: 250px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .insights-panel {
+            margin-top: 1rem;
+        }
+
+        .insights-panel h3 {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .insight-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Recent History - Bottom */
+        .history-panel {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .history-panel.show {
+            max-height: 500px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .history-table td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        /* Utils */
+        .text-success {
+            color: var(--success);
+        }
+
+        .text-danger {
+            color: var(--danger);
+        }
+
+        .text-warning {
+            color: var(--warning);
+        }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #FFF;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <div class="dashboard-container">
+        <!-- Input Column -->
+        <section class="input-section">
+            <div class="glass-panel">
+                <div class="brand-header">
+                    <h1>VitalGuard AI</h1>
+                    <p>Advanced Neural Vitals Prediction</p>
+                </div>
+
+                <form id="vitalsForm" style="margin-top: 2.5rem;">
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Heart Rate (BPM)</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-heart-pulse"></i>
+                                <input type="number" id="heart_rate" required placeholder="60 - 180" min="30" max="220">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Blood Pressure (Systolic)</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-droplet"></i>
+                                <input type="number" id="bp" required placeholder="90 - 180" min="50" max="250">
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Oxygen Level (%)</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lungs"></i>
+                                <input type="number" id="oxygen_level" required placeholder="90 - 100" min="50"
+                                    max="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="analyze-btn" id="analyzeBtn">
+                        <span>Run Diagnostics</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Mini History (Visible after first scan) -->
+            <div class="glass-panel history-panel" id="historyPanel">
+                <h3 style="margin-bottom: 1rem;">Recent Scans</h3>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>HR</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Results Column -->
+        <section class="results-section" id="resultsSection">
+            <!-- Status Main Card -->
+            <div class="glass-panel status-card" id="mainStatusCard">
+                <div class="status-text">
+                    <h2 id="statusTitle">Ready to Scan</h2>
+                    <p id="riskLevelText">Waiting for patient data...</p>
+                </div>
+                <div class="status-icon" id="statusIcon">
+                    <i class="fa-solid fa-user-doctor"></i>
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="glass-panel metric-box">
+                    <div class="metric-label">Current HR</div>
+                    <div class="metric-value" id="dispCurrentHR">--</div>
+                </div>
+                <div class="glass-panel metric-box">
+                    <div class="metric-label">Predicted HR</div>
+                    <div class="metric-value" id="dispPredictedHR" style="color: var(--primary);">--</div>
+                </div>
+            </div>
+
+            <!-- Charts & Insights -->
+            <div class="glass-panel">
+                <h3>Vitals Analysis</h3>
+                <div class="chart-container">
+                    <canvas id="vitalsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="glass-panel insights-panel">
+                <h3><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent);"></i> AI Insights</h3>
+                <div id="insightsList">
+                    <div class="insight-item">
+                        <i class="fa-solid fa-info-circle" style="color: var(--primary); margin-top: 3px;"></i>
+                        <span>Enter your vital signs on the left to generate a personalized health prediction using our
+                            LSTM Neural Network.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Chart Configuration
+        let vitalsChart = null;
+
+        function initChart() {
+            const ctx = document.getElementById('vitalsChart').getContext('2d');
+
+            // Gradient for chart
+            let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+            vitalsChart = new Chart(ctx, {
+                type: 'bar', // Mixing types below
+                data: {
+                    labels: ['Current HR', 'Predicted HR', 'Safe Max'],
+                    datasets: [{
+                        label: 'Vitals Comparison',
+                        data: [0, 0, 100],
+                        backgroundColor: [
+                            'rgba(255, 255, 255, 0.2)',
+                            '#3b82f6',
+                            'rgba(16, 185, 129, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 255, 255, 0.5)',
+                            '#3b82f6',
+                            '#10b981'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Logic
+        document.getElementById('vitalsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('analyzeBtn');
+            const originalText = btn.innerHTML;
+
+            // UI Loading
+            btn.innerHTML = '<span class="loader"></span> Processing...';
+            btn.disabled = true;
+
+            const inputData = {
+                heart_rate: parseFloat(document.getElementById('heart_rate').value),
+                bp: parseFloat(document.getElementById('bp').value),
+                oxygen_level: parseFloat(document.getElementById('oxygen_level').value)
+            };
+
+            try {
+                // Determine Local Time String
+                const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                // Simulate slight network delay for effect if local
+                // await new Promise(r => setTimeout(r, 800)); 
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(inputData)
+                });
+
+                if (!response.ok) throw new Error('Prediction Failed');
+
+                const result = await response.json();
+
+                // Show Result Section with Animation
+                const resSection = document.getElementById('resultsSection');
+                resSection.classList.add('active');
+
+                // Update Status Card
+                const statusCard = document.getElementById('mainStatusCard');
+                const statusTitle = document.getElementById('statusTitle');
+                const riskText = document.getElementById('riskLevelText');
+                const icon = document.getElementById('statusIcon');
+
+                // Reset classes
+                statusCard.className = 'glass-panel status-card';
+
+                if (result.status === 'ALERT') {
+                    statusCard.classList.add('danger');
+                    statusTitle.innerText = "Health Alert Detected";
+                    icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-danger"></i>';
+                } else if (result.risk_level === 'Medium Risk') {
+                    statusCard.classList.add('warning');
+                    statusTitle.innerText = "Caution Advised";
+                    icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-warning"></i>';
+                } else {
+                    statusCard.classList.add('safe');
+                    statusTitle.innerText = "Vitals Normal";
+                    icon.innerHTML = '<i class="fa-solid fa-shield-heart text-success"></i>';
+                }
+
+                riskText.innerText = `Prediction indicates ${result.risk_level}`;
+
+                // Update Numbers
+                animateValue("dispCurrentHR", 0, result.current_hr, 1000);
+                animateValue("dispPredictedHR", 0, result.predicted_hr, 1000);
+
+                // Update Chart
+                updateChart(result.current_hr, result.predicted_hr);
+
+                // Generate Insights
+                generateInsights(result, inputData);
+
+                // Add to History
+                addToHistory(timeString, result.predicted_hr, result.status);
+
+            } catch (err) {
+                alert("Error analyzing vitals: " + err.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end; // Ensure exact final value
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function updateChart(current, predicted) {
+            if (!vitalsChart) return;
+            vitalsChart.data.datasets[0].data = [current, predicted, 100];
+
+            // Color logic for predicted bar
+            let predColor = '#3b82f6';
+            if (predicted > 100) predColor = '#ef4444';
+            vitalsChart.data.datasets[0].backgroundColor[1] = predColor;
+            vitalsChart.update();
+        }
+
+        function generateInsights(result, inputs) {
+            const list = document.getElementById('insightsList');
+            list.innerHTML = ''; // Clear
+
+            const tips = [];
+
+            // Status Tip
+            if (result.status === 'ALERT') {
+                tips.push({
+                    text: 'Predicted tachycardia event. Immediate rest recommended. Monitor pulse continuously.',
+                    icon: 'fa-bed-pulse',
+                    color: '#ef4444'
+                });
+            } else {
+                tips.push({
+                    text: 'Heart function appears stable based on LSTM trend analysis.',
+                    icon: 'fa-check-circle',
+                    color: '#10b981'
+                });
+            }
+
+            // Oxygen Tip
+            if (inputs.oxygen_level < 95) {
+                tips.push({
+                    text: 'Oxygen saturation is slightly low. Consider deep breathing exercises.',
+                    icon: 'fa-lungs',
+                    color: '#f59e0b'
+                });
+            }
+
+            // BP Tip
+            if (inputs.bp > 130) {
+                tips.push({
+                    text: 'Systolic BP is elevated. Reduce sodium intake and stress levels.',
+                    icon: 'fa-droplet',
+                    color: '#f59e0b'
+                });
+            }
+
+            tips.forEach(tip => {
+                const div = document.createElement('div');
+                div.className = 'insight-item';
+                div.innerHTML = `
+                    <i class="fa-solid ${tip.icon}" style="color: ${tip.color}; margin-top: 3px;"></i>
+                    <span>${tip.text}</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addToHistory(time, hr, status) {
+            const panel = document.getElementById('historyPanel');
+            const tbody = document.getElementById('historyBody');
+
+            panel.classList.add('show');
+
+            const row = document.createElement('tr');
+            const statusClass = status === 'ALERT' ? 'text-danger' : 'text-success';
+            row.innerHTML = `
+                <td>${time}</td>
+                <td>${hr}</td>
+                <td class="${statusClass}"><i class="fa-solid fa-circle" style="font-size: 8px; vertical-align: middle;"></i> ${status}</td>
+            `;
+
+            // Insert at top
+            tbody.insertBefore(row, tbody.firstChild);
+
+            // Limit to 5
+            if (tbody.children.length > 5) {
+                tbody.removeChild(tbody.lastChild);
+            }
+        }
+
+        // Initialize
+        initChart();
+    </script>
+</body>
+
+</html>
